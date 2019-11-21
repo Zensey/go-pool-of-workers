@@ -33,6 +33,10 @@ func NewPool(maxWorkers int) *Pool {
 	return p
 }
 
+func (p *Pool) incPendingJobs() {
+	p.pendingJobs++
+}
+
 func (p *Pool) spawnWorker() {
 	p.wg.Add(1)
 	w := newWorker(p)
@@ -60,7 +64,7 @@ func (p *Pool) Start(funcProcessJob FuncProcessJob, funcOnJobResult FuncOnJobRes
 				return
 			}
 
-			// if has more tasks and not maxWorkers exceeded, spawn another 1 worker
+			// if has more tasks and not maxWorkers exceeded, spawn 1 another worker
 			if len(p.workers) < p.maxWorkers {
 				p.spawnWorker()
 			}

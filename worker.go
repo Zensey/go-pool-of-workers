@@ -13,7 +13,7 @@ func newWorker(p *Pool) *Worker {
 }
 
 func (w *Worker) SubmitJob(j Job) {
-	w.pool.pendingJobs++
+	w.pool.incPendingJobs()
 	w.jobChan <- j
 }
 
