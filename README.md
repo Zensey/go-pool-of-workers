@@ -1,3 +1,3 @@
-# pool_of_workers
+# pool-of-workers
 
 A simplistic pool of workers for Golang
