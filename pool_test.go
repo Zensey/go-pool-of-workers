@@ -2,33 +2,42 @@ package pool_of_workers
 
 import (
 	"testing"
+	"time"
 )
 
 type job struct{}
 
-func (r *job) Run() {}
+func (r *job) Run() {
+	time.Sleep(200 * time.Millisecond)
+}
 
 func Test_Pool(t *testing.T) {
-	p := NewPool(2)
+	p := NewPool(10, 20)
 
-	tasks := 20
-	resultsCnt := tasks
+	tasks := 10
 
-	funcPoolOnResult := func(r Job) bool {
-		resultsCnt--
-		return resultsCnt == 0
+	tasksCnt := tasks
+	resCnt := 0
+	submitCnt := 0
+
+	funcPoolOnResult := func(r Job) {
+		resCnt++
+		println("on result >", resCnt)
 	}
 
-	funcPoolProcessJob := func(w *Worker) bool {
-		if tasks > 0 {
+	funcPoolProcessJob := func(w *Worker) {
+		if tasksCnt > 0 {
 			j := job{}
-
 			w.SubmitJob(&j)
-		}
-		joinAll := tasks <= 0
-		tasks--
-		return joinAll
-	}
 
+			submitCnt++
+			println("submit >", submitCnt)
+		}
+		tasksCnt--
+	}
 	p.Start(funcPoolProcessJob, funcPoolOnResult)
+
+	if !(resCnt == submitCnt && resCnt == tasks) {
+		t.Fail()
+	}
 }

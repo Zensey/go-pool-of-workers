@@ -12,11 +12,13 @@ func newWorker(p *Pool) *Worker {
 	}
 }
 
+// Used by user-s code to submit a task to spare worker
 func (w *Worker) SubmitJob(j Job) {
 	w.pool.incPendingJobs()
 	w.jobChan <- j
 }
 
+// Used by pool to spawn a worker
 func (w *Worker) Run(id int) {
 	for {
 		w.pool.idleWorkers <- w

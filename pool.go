@@ -1,6 +1,7 @@
 package pool_of_workers
 
 import (
+	"github.com/cznic/mathutil"
 	"sync"
 )
 
@@ -9,6 +10,7 @@ type Job interface {
 }
 
 type Pool struct {
+	minWorkers  int
 	maxWorkers  int
 	workers     []*Worker
 	wg          sync.WaitGroup
@@ -18,11 +20,12 @@ type Pool struct {
 	pendingJobs int
 }
 
-type FuncProcessJob func(*Worker) bool
-type FuncOnJobResult func(Job) bool
+type FuncProcessJob func(*Worker)
+type FuncOnJobResult func(Job)
 
-func NewPool(maxWorkers int) *Pool {
+func NewPool(minWorkers, maxWorkers int) *Pool {
 	p := &Pool{
+		minWorkers:  minWorkers,
 		maxWorkers:  maxWorkers,
 		workers:     make([]*Worker, 0, maxWorkers),
 		quit:        make(chan bool),
@@ -52,17 +55,19 @@ func (p *Pool) joinWorkers() {
 }
 
 func (p *Pool) Start(funcProcessJob FuncProcessJob, funcOnJobResult FuncOnJobResult) {
-	p.spawnWorker()
+	p.minWorkers = mathutil.Max(1, p.minWorkers)
+	p.minWorkers = mathutil.Min(p.minWorkers, p.maxWorkers)
+
+	for i := 0; i < p.minWorkers; i++ {
+		p.spawnWorker()
+	}
 
 	for {
 		select {
 		case res := <-p.results:
 			p.pendingJobs--
 
-			if funcOnJobResult(res) && p.pendingJobs == 0 {
-				p.joinWorkers()
-				return
-			}
+			funcOnJobResult(res)
 
 			// if has more tasks and not maxWorkers exceeded, spawn 1 another worker
 			if len(p.workers) < p.maxWorkers {
@@ -70,7 +75,8 @@ func (p *Pool) Start(funcProcessJob FuncProcessJob, funcOnJobResult FuncOnJobRes
 			}
 
 		case w := <-p.idleWorkers:
-			if funcProcessJob(w) && p.pendingJobs == 0 {
+			funcProcessJob(w)
+			if p.pendingJobs == 0 {
 				p.joinWorkers()
 				return
 			}
