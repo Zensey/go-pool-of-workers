@@ -1,6 +1,8 @@
 # pool-of-workers
 
 This is simplistic pool of workers implementation for Golang.
+The key difference is abscence of a common job queue as there is only a queue of idle workers.
+
 All you need to do is:
  * a job executor (Runner), a specific code which handles a unit of work
  * a callback, providing workers with a job-units (fnJobProvider)
