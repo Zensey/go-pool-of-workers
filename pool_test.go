@@ -20,12 +20,12 @@ func Test_Pool(t *testing.T) {
 	resCnt := 0
 	submitCnt := 0
 
-	funcPoolOnResult := func(r Job) {
+	fnOnResult := func(r Job) {
 		resCnt++
 		println("on result >", resCnt)
 	}
 
-	funcPoolProcessJob := func(w *Worker) {
+	fnJobProvider := func(w *Worker) {
 		if tasksCnt > 0 {
 			j := job{}
 			w.SubmitJob(&j)
@@ -35,7 +35,7 @@ func Test_Pool(t *testing.T) {
 		}
 		tasksCnt--
 	}
-	p.Start(funcPoolProcessJob, funcPoolOnResult)
+	p.Start(fnJobProvider, fnOnResult)
 
 	if !(resCnt == submitCnt && resCnt == tasks) {
 		t.Fail()

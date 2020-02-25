@@ -46,7 +46,7 @@ func (p *Pool) spawnWorker() {
 	p.workers = append(p.workers, w)
 
 	id := len(p.workers)
-	go w.Run(id)
+	go w.run(id)
 }
 
 func (p *Pool) joinWorkers() {
