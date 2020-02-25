@@ -1,4 +1,4 @@
-package pool_of_workers
+package pool
 
 import (
 	"testing"

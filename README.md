@@ -1,4 +1,4 @@
-# pool-of-workers
+# go-pool-of-workers
 
 This is a simplistic pool of workers [1] implementation for Golang.
 The key difference is an absence of a common job queue as there is only a queue of idle workers.
@@ -16,7 +16,7 @@ Code example:
     }
     
     func main() {
-        p := NewPool(10, 20)
+        p := pool.NewPool(10, 20)
         tasks := 10
     
         fnOnResult   := func(r Job) {}

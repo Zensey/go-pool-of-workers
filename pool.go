@@ -1,4 +1,4 @@
-package pool_of_workers
+package pool
 
 import (
 	"github.com/cznic/mathutil"
