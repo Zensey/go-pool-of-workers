@@ -5,7 +5,7 @@ The key difference is an absence of a common job queue as there is only a queue 
 
 All you need to use it is:
  * a job executor (Runner), a specific code which handles a unit of work
- * a callback, providing workers with a job-units (fnJobProvider)
+ * a callback to handle executor results (optional)
 
 Code example:
 
