@@ -18,6 +18,8 @@ type Pool struct {
 	results     chan Job
 	idleWorkers chan *Worker
 	pendingJobs int
+
+	FnOnJobResult FuncOnJobResult
 }
 
 type FuncProcessJob func(*Worker)
@@ -33,11 +35,10 @@ func NewPool(minWorkers, maxWorkers int) *Pool {
 		idleWorkers: make(chan *Worker, 100),
 		pendingJobs: 0,
 	}
-	return p
-}
+	p.minWorkers = mathutil.Max(1, p.minWorkers)
+	p.minWorkers = mathutil.Min(p.minWorkers, p.maxWorkers)
 
-func (p *Pool) incPendingJobs() {
-	p.pendingJobs++
+	return p
 }
 
 func (p *Pool) spawnWorker() {
@@ -54,32 +55,40 @@ func (p *Pool) joinWorkers() {
 	p.wg.Wait()
 }
 
-func (p *Pool) Start(funcProcessJob FuncProcessJob, funcOnJobResult FuncOnJobResult) {
-	p.minWorkers = mathutil.Max(1, p.minWorkers)
-	p.minWorkers = mathutil.Min(p.minWorkers, p.maxWorkers)
+func (p *Pool) Submit(j Job) {
+	if j != nil {
+		for len(p.workers) < p.minWorkers {
+			p.spawnWorker()
+		}
 
-	for i := 0; i < p.minWorkers; i++ {
-		p.spawnWorker()
+		// if no spare workers and not maxWorkers exceeded, spawn 1 another worker
+		if p.pendingJobs == len(p.workers) && len(p.workers) < p.maxWorkers {
+			p.spawnWorker()
+		}
 	}
 
 	for {
 		select {
 		case res := <-p.results:
 			p.pendingJobs--
-
-			funcOnJobResult(res)
-
-			// if has more tasks and not maxWorkers exceeded, spawn 1 another worker
-			if len(p.workers) < p.maxWorkers {
-				p.spawnWorker()
+			if p.FnOnJobResult != nil {
+				p.FnOnJobResult(res)
 			}
 
 		case w := <-p.idleWorkers:
-			funcProcessJob(w)
+			if j != nil {
+				p.pendingJobs++
+				w.SubmitJob(j)
+				return
+			}
 			if p.pendingJobs == 0 {
 				p.joinWorkers()
 				return
 			}
 		}
 	}
+}
+
+func (p *Pool) Stop() {
+	p.Submit(nil)
 }

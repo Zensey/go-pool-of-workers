@@ -10,24 +10,19 @@ All you need to use it is:
 Code example:
 
     type Runner struct{}
-    
     func (r *Runner) Run() {
         time.Sleep(200 * time.Millisecond)
     }
     
     func main() {
-        p := pool.NewPool(10, 20)
+        p := pool.NewPool(2, 4)
+        p.fnOnResult = func() {}
         tasks := 10
-    
-        fnOnResult   := func(r Job) {}
-        fnJobProvider := func(w *Worker) {
-            if tasksCnt > 0 {
-                j := Runner{}
-                w.SubmitJob(&j)
-            }
-            tasksCnt--
+
+        for tasksCnt > 0; tasksCnt-- {
+            p.Submit(&Runner{})
         }
-        p.Start(fnJobProvider, fnOnResult)
+        p.Stop()
     }
 
 References

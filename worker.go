@@ -14,7 +14,6 @@ func newWorker(p *Pool) *Worker {
 
 // Used by user-s code to submit a task to a worker
 func (w *Worker) SubmitJob(j Job) {
-	w.pool.incPendingJobs()
 	w.jobChan <- j
 }
 
