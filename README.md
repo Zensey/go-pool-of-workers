@@ -1,6 +1,6 @@
 # go-pool-of-workers
 
-This is a simplistic pool of workers [1] implementation for Golang.
+This is a simplistic Go implementation of the pool of workers [1].
 
 ###### When you might need it:
 If you want to handle a number/stream of jobs in parallel but with a limited number of goroutines.
