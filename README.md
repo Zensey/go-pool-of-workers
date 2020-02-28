@@ -7,7 +7,7 @@ If you want to handle a number/stream of jobs in parallel but with a limited num
 
 All you need is:
  * a job Runner -- a handler for a specific unit of work
- * a optional callback to handle a result of job 
+ * an optional callback to handle a result of job 
 
 Code example:
 
