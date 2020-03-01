@@ -17,7 +17,7 @@ Code example:
     }
     
     func main() {
-        p := pool.NewPool(2, 4)
+        p := pool.NewPool(2, 4) // minWorkers, maxWorkers
         p.fnOnResult = func() {}
         tasks := 10
 
