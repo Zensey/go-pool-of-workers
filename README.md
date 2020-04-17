@@ -11,18 +11,20 @@ All you need is:
 
 Code example:
 
-    type Runner struct{}
-    func (r *Runner) Run() {
+    type Job struct{ result SomeType }
+    
+    func (r *Job) Run() {
         time.Sleep(200 * time.Millisecond)
+        r.result = x
     }
     
     func main() {
         p := pool.NewPool(2, 4) // minWorkers, maxWorkers
         p.fnOnResult = func() {}
         tasks := 10
-
+    
         for tasksCnt > 0; tasksCnt-- {
-            p.Submit(&Runner{})
+            p.Submit(&Job{})
         }
         p.Stop()
     }
