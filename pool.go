@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"github.com/cznic/mathutil"
 	"sync"
 )
 
@@ -35,8 +34,8 @@ func NewPool(minWorkers, maxWorkers int) *Pool {
 		idleWorkers: make(chan *Worker, 100),
 		pendingJobs: 0,
 	}
-	p.minWorkers = mathutil.Max(1, p.minWorkers)
-	p.minWorkers = mathutil.Min(p.minWorkers, p.maxWorkers)
+	p.minWorkers = max(1, p.minWorkers)
+	p.minWorkers = min(p.minWorkers, p.maxWorkers)
 
 	return p
 }
