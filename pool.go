@@ -66,6 +66,12 @@ func (p *Pool) Submit(j Job) {
 		}
 	}
 
+	p.processLoop(j)
+}
+
+func (p *Pool) processLoop(j Job) {
+
+	// exits from the cycle only when there's a spare worker and the job has been submitted to it
 	for {
 		select {
 		case res := <-p.results:
@@ -89,5 +95,5 @@ func (p *Pool) Submit(j Job) {
 }
 
 func (p *Pool) Stop() {
-	p.Submit(nil)
+	p.processLoop(nil)
 }
