@@ -13,26 +13,29 @@ func (r *job) Run() {
 
 func Test_Pool(t *testing.T) {
 	p := NewPool(2, 8)
-
 	tasks := 10
-	tasksCnt := tasks
-	resCnt := 0
-	submitCnt := 0
+	results := 0
 
 	p.FnOnJobResult = func(r Job) {
-		resCnt++
-		println("on result >", resCnt)
+		results++
+		println("on result >", results)
 	}
 
-	for ; tasksCnt > 0; tasksCnt-- {
+	for i := 0; i < tasks; i++ {
 		p.Submit(&job{})
-
-		submitCnt++
-		println("submit >", submitCnt)
 	}
 	p.Stop()
 
-	if !(resCnt == submitCnt && resCnt == tasks) {
+	if results != tasks {
 		t.Fail()
 	}
+}
+
+func Test_PoolEmpty(t *testing.T) {
+	p := NewPool(2, 8)
+
+	p.FnOnJobResult = func(r Job) {
+		println("on result >")
+	}
+	p.Stop()
 }

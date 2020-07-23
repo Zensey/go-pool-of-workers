@@ -20,16 +20,26 @@ func (w *Worker) SubmitJob(j Job) {
 // Used by pool to spawn a worker
 func (w *Worker) run(id int) {
 	for {
-		w.pool.idleWorkers <- w
+		select {
+		case w.pool.idleWorkers <- w:
+			println("w> idle")
+
+		case <-w.pool.quit:
+			println("w> quit")
+			w.pool.wg.Done()
+			return
+		}
 
 		select {
 		case job := <-w.jobChan:
+			println("w> j", job)
 			job.Run()
-			w.pool.results <- job // Pool should read all results. For this we count submitted jobs
+			w.pool.results <- job
 
 		case <-w.pool.quit:
-			w.pool.wg.Done()
+			println("w> quit 2")
 
+			w.pool.wg.Done()
 			return
 		}
 	}

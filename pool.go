@@ -4,10 +4,6 @@ import (
 	"sync"
 )
 
-type Job interface {
-	Run()
-}
-
 type Pool struct {
 	minWorkers  int
 	maxWorkers  int
@@ -21,7 +17,6 @@ type Pool struct {
 	FnOnJobResult FuncOnJobResult
 }
 
-type FuncProcessJob func(*Worker)
 type FuncOnJobResult func(Job)
 
 func NewPool(minWorkers, maxWorkers int) *Pool {
@@ -71,6 +66,10 @@ func (p *Pool) Submit(j Job) {
 
 func (p *Pool) processLoop(j Job) {
 
+	if j == nil && len(p.workers) == 0 {
+		return
+	}
+
 	// exits from the cycle only when there's a spare worker and the job has been submitted to it
 	for {
 		select {
@@ -86,6 +85,7 @@ func (p *Pool) processLoop(j Job) {
 				w.SubmitJob(j)
 				return
 			}
+			// we are going to be Stop()-ed
 			if p.pendingJobs == 0 {
 				p.joinWorkers()
 				return
