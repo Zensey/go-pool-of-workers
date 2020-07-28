@@ -20,7 +20,7 @@ Code example:
     
     func main() {
         p := pool.NewPool(2, 4) // minWorkers, maxWorkers
-        p.fnOnResult = func(j Job) {}
+        p.FnOnJobResult = func(j Job) {}
 
         tasks := 10
         for tasksCnt > 0; tasksCnt-- {
